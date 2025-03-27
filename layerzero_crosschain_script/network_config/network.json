@@ -1,0 +1,14 @@
+[
+    {
+        "network":"holesky",
+         "rpc":"https://1rpc.io/holesky",
+          "chain_id":17000
+    },
+    {
+        "network":"amoy",
+          "chain_id":80002,
+         "rpc":"https://rpc-amoy.polygon.technology"
+     
+          
+    }
+]

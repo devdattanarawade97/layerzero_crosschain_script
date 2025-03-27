@@ -1,0 +1,14 @@
+[
+    {
+        "network":"holesky",
+         "endpoint_address":"0x6EDCE65403992e310A62460808c4b910D972f10f",
+          "eid":40217,
+          "rpcUrl":"https://1rpc.io/holesky"
+    },
+    {
+        "network":"amoy",
+         "endpoint_address":"0x6EDCE65403992e310A62460808c4b910D972f10f",
+          "eid":40267,
+          "rpcUrl":"https://rpc-amoy.polygon.technology"
+    }
+]

@@ -1,0 +1,14 @@
+{
+  "name": "hardhat-project",
+  "scripts": {
+    "deploy_testnet": "npx hardhat run scripts/deploy.js"
+  },
+  "dependencies": {
+    "@layerzerolabs/lz-v2-utilities": "^3.0.83",
+    "dotenv": "^16.4.7",
+    "ethers": "^6.13.5"
+  },
+  "devDependencies": {
+    "@layerzerolabs/lz-evm-sdk-v2": "^3.0.83"
+  }
+}
