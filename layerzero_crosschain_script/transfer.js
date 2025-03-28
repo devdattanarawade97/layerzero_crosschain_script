@@ -1,12 +1,11 @@
 const ethers = require("ethers");
 const fs = require("fs");
 require("dotenv").config();
-// import { Options } from '@layerzerolabs/lz-v2-utilities';
 const { Options } = require('@layerzerolabs/lz-v2-utilities');
+const { getChainData } = require('./helper/getChainData')
 // Or potentially check console.log(lzUtils) to see what is exported
-// import { Options } from '@layerzerolabs/lz-evm-sdk-v2';
-// Ensure this file maps network names to LayerZero Endpoint IDs (eid) and RPC URLs
-const lzEndpoints = require("./lz_config/lz_endpoints.json");
+
+
 const holeksyABI = require('./abis/Holesky_OFT_ABI.json')
 const amoyABI = require('./abis/Amoy_OFT_ABI.json')
 // --- Configuration ---
@@ -15,22 +14,6 @@ if (!process.env.MNEMONIC) {
     throw new Error("MNEMONIC not found in .env file");
 }
 
-
-
-// --- Helper Functions ---
-
-// Function to get the LayerZero endpoint ID (eid) & RPC for a given network name
-function getChainData(network) {
-    // Assuming lz_endpoints.json looks like: [{ "network": "sepolia", "eid": 40161, "rpcUrl": "..." }, ...]
-    const networkData = lzEndpoints.find(n => n.network.toLowerCase() === network.toLowerCase());
-    if (!networkData) {
-        throw new Error(`Network ${network} not found in lz_endpoints.json`);
-    }
-    if (!networkData.eid || !networkData.rpcUrl) {
-        throw new Error(`Network ${network} data in lz_endpoints.json is missing 'eid' or 'rpcUrl'`);
-    }
-    return networkData;
-}
 
 // --- Main Transfer Logic ---
 
@@ -47,10 +30,10 @@ async function initiateOftTransfer(srcNetwork, destNetwork, destAddress, tokenAm
         const destData = getChainData(destNetwork);
         const expectedSourceEid = srcData.eid; // Use LayerZero Endpoint ID
         const destinationEid = destData.eid; // LayerZero Endpoint ID
-          
-      
-        const { address: sourceOftContractAddress, abi: sourceOftAbi } = amoyABI;
-        const { address: destinationOftContractAddress, abi: destinationOftAbi } = holeksyABI;
+
+
+        const { address: sourceOftContractAddress, abi: sourceOftAbi } = holeksyABI;
+        const { address: destinationOftContractAddress, abi: destinationOftAbi } = amoyABI;
 
         if (!sourceOftContractAddress || !sourceOftAbi) {
             throw new Error(`OFT Contract address or ABI not found for ${srcNetwork}`);
@@ -92,12 +75,12 @@ async function initiateOftTransfer(srcNetwork, destNetwork, destAddress, tokenAm
         const amountLD = ethers.parseUnits(tokenAmountString, decimals); // amount in Local Decimals
         console.log(`🔢 Amount in Local Decimals (amountLD): ${amountLD.toString()}`);
 
-        // 4. (Optional but Recommended) Approve Token Spend
+        // 4. Approve Token Spend
         // Check if the OFT contract is an adapter/proxy that needs approval
         // You might need to inspect the contract type or add logic here.
         // For simplicity, we'll attempt approval. If it's a native OFT, this might fail harmlessly or isn't needed.
         // Determine the actual token address to approve (might be the OFT itself or an underlying token)
-        let tokenToApproveAddress = require('./abis/Holesky_Token_ABI.json'); // Default assumption
+        let tokenToApproveAddress = ""; // Default assumption
         try {
             // If the OFT contract has a 'token()' function, it's likely an adapter/proxy
             const underlying = await sourceOftContract.token();
@@ -129,21 +112,9 @@ async function initiateOftTransfer(srcNetwork, destNetwork, destAddress, tokenAm
         }
         // 4. Set peer ON SOURCE CONTRACT ONLY
 
-        // Ensure these variables are defined correctly earlier in your script:
-        // const sourceOftContract = new ethers.Contract(oftContractAddress, sourceOftAbi, wallet); // Source contract instance on source chain (e.g., Holesky)
-        // const oftContractAddress = sourceOftContract.target; // Source contract address string (e.g., on Holesky)
-        // const sourceOftContractAddress = sourceOftContract.target; // Explicitly using for clarity if needed elsewhere
-        // const destinationOftContractAddress = "0xYourDestinationOftContractAddressHere"; // <<< MUST BE THE ADDRESS ON THE DESTINATION CHAIN (e.g., Amoy)
-        // const destinationEid = destData.eid; // Destination chain EID (e.g., 40267 for Amoy)
-        // const sourceEid = srcData.eid; // Source chain EID (e.g., 40170 for Holesky) - needed for reminder log
-
-   
-
         try {
             // Target: Source Contract (oftContractAddress)
             // Action: Tell it about its peer on the Destination Chain (destinationEid)
-
-   
 
             // Convert the destination contract address to bytes32 format
             const peerBytes32Source = ethers.zeroPadValue(sourceOftContractAddress, 32);
@@ -160,7 +131,7 @@ async function initiateOftTransfer(srcNetwork, destNetwork, destAddress, tokenAm
                 // *** Adjust this function name/signature if your contract differs ***
                 const currentPeer = await sourceOftContract.peers(destinationEid);
                 console.log('current peer : ', currentPeer)
-                   
+
                 if (currentPeer.toLowerCase() === peerBytes32Destination.toLowerCase()) {
                     console.log(`✅ Peer for Source EID ${expectedSourceEid} is already correctly set on the source contract.`);
                     needsSourceUpdate = false;
@@ -193,7 +164,7 @@ async function initiateOftTransfer(srcNetwork, destNetwork, destAddress, tokenAm
                 // Log specific error if helpful: console.warn(`   (Peer check failed: ${viewError.message})`);
                 console.warn(`⚠️ Could not check current peer setting on source contract (view function 'peers(${destinationEid})' might differ or fail). Proceeding with setPeer call.`);
             }
-     
+
             if (needsSourceUpdate) {
                 // Execute the setPeer transaction ON THE SOURCE contract
                 console.log(`\n⏳ Attempting to set peer on SOURCE contract (${sourceOftContractAddress})...`);
@@ -234,7 +205,6 @@ async function initiateOftTransfer(srcNetwork, destNetwork, destAddress, tokenAm
 
 
         // 5. Prepare Send Parameters
-        // const recipientAddressBytes32 = ethers.solidityPacked(['address'], [destAddress]);
         // Pad the 20-byte address to bytes32 as expected by LayerZero OFT contracts
         const peerBytes32Destination = ethers.zeroPadValue(destinationOftContractAddress, 32);
         console.log(`📦 Recipient Address (Bytes32): ${peerBytes32Destination}`);
@@ -249,29 +219,10 @@ async function initiateOftTransfer(srcNetwork, destNetwork, destAddress, tokenAm
         optionsBuilder = optionsBuilder.addExecutorLzReceiveOption(65000000, 0);
 
         // You could chain other options here if needed, e.g.:
-        // optionsBuilder = optionsBuilder.addExecutorOrderedExecutionOption();
 
         // Finalize and get the bytes string
         const options = optionsBuilder.toBytes(); // Use the instance method
-        // Example: Drop 0.001 native token to destAddress
-        const nativeDropAmount = ethers.parseEther("0.001"); // Or use parseUnits
-        const lzTokenDropAmount = 0;
-        const dropAddress = destAddress; // Or wallet.address
-        // const optionsV3 = ethers.solidityPacked(
-        //     ['uint16', 'uint256', 'uint256', 'address'], // type, nativeAmt, lzAmt, dropAddr
-        //     [3, nativeDropAmount, lzTokenDropAmount, dropAddress] // version 3
-        // );
-        // const options = ethers.solidityPacked(
-        //     ['uint16', 'uint256', 'uint256', 'address'],
-        //     [
-        //         3, // options version 3, for specifying native drop and receiver swap
-        //         nativeDropAmount, // native amount to drop
-        //         0, // lzToken amount to drop
-        //         wallet.address // address on destination to drop native/lzToken to
-        //     ]
-        // );
-        // console.log(`🔧 LayerZero Options: ${optionsV3}`);
-        // const receiverBytesAddressSolidity = ethers.solidityPacked(destAddress, 32);
+
         const receiverBytesAddressZeroPad = ethers.zeroPadValue(destAddress, 32);
         // console.log('bytes address solidity : ', receiverBytesAddressSolidity)
         console.log("zero pad ", receiverBytesAddressZeroPad)
@@ -335,7 +286,7 @@ async function initiateOftTransfer(srcNetwork, destNetwork, destAddress, tokenAm
             console.log(`   - Amount in Error Data:    10000000000000`); // From 0x...9184e72a000
             console.log(`   - Token Allowance:         ${allowance.toString()}`);
             console.log(`   - Token Balance:           ${balance.toString()}`);
-            const amountToMint = ethers.parseUnits("10000", 18); 
+            const amountToMint = ethers.parseUnits("10000", 18);
             // const mintTx = await tokenContract.mint(destAddress, amountToMint);
             console.log(`   - Token Balance:           ${balance.toString()}`);
             if (allowance < sendParam.amountLD) {
@@ -441,11 +392,11 @@ async function receiveTransferListener(destNetwork, srcNetwork) {
             const zeroAddress = ethers.ZeroAddress;
 
             if (to.toLowerCase() === expectedRecipient.toLowerCase() && from === zeroAddress) {
-                 console.log(`✅ >>> Matched Transfer (potential OFT mint) to ${to}! <<<`);
-                 // Add logic here if you need to do something upon receiving
+                console.log(`✅ >>> Matched Transfer (potential OFT mint) to ${to}! <<<`);
+                // Add logic here if you need to do something upon receiving
             } else if (to.toLowerCase() === expectedRecipient.toLowerCase()) {
-                 console.log(`ℹ️  >>> Matched Transfer to ${to} (From: ${from}) <<<`);
-                 // Potentially relevant, but might not be the mint from _lzReceive
+                console.log(`ℹ️  >>> Matched Transfer to ${to} (From: ${from}) <<<`);
+                // Potentially relevant, but might not be the mint from _lzReceive
             } else {
                 // console.log(`   (Ignoring event, recipient is ${to})`);
             }
@@ -475,11 +426,6 @@ async function main() {
 
     const [srcNetwork, destNetwork, destAddress, tokenAmountString] = args;
 
-    // if (!ethers.isAddress(destAddress)) {
-    //     console.error(`Invalid destination address: ${destAddress}`);
-    //     process.exit(1);
-    // }
-
     // Initiate the transfer
     await initiateOftTransfer(srcNetwork, destNetwork, destAddress, tokenAmountString);
 
@@ -496,7 +442,7 @@ if (process.argv[2] === '--listen') {
         console.log("Usage for listener: node transfer.js --listen <listeningNetwork> <expectedSourceNetwork>");
         process.exit(1);
     }
-    const [ , , ,listenNetwork, expectedSourceNetwork] = process.argv;
+    const [, , , listenNetwork, expectedSourceNetwork] = process.argv;
     receiveTransferListener(listenNetwork, expectedSourceNetwork)
         .catch(error => {
             console.error("Listener failed:", error);
