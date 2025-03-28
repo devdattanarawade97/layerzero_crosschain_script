@@ -94,7 +94,7 @@ async function initiateOftTransfer(srcNetwork, destNetwork, destAddress, tokenAm
         } catch (e) {
             console.log(`🛡️ No 'token()' function found. Assuming OFT contract itself manages tokens. Approving OFT address.`);
         }
-
+    
         const tokenContract = new ethers.Contract(tokenToApproveAddress, sourceOftAbi, wallet);
         console.log(`\n⏳ Approving OFT contract (${sourceOftContractAddress}) to spend ${tokenAmountString} tokens...`);
         try {
