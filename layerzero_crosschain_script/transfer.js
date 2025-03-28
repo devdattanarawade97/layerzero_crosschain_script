@@ -202,8 +202,6 @@ async function initiateOftTransfer(srcNetwork, destNetwork, destAddress, tokenAm
             throw new Error(`Setting peer on SOURCE failed, cannot proceed. Reason: ${error.message}`);
         }
 
-
-
         // 5. Prepare Send Parameters
         // Pad the 20-byte address to bytes32 as expected by LayerZero OFT contracts
         const peerBytes32Destination = ethers.zeroPadValue(destinationOftContractAddress, 32);
