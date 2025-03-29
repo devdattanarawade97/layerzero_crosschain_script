@@ -63,15 +63,15 @@ const config: HardhatUserConfig = {
         //     url: process.env.RPC_URL_FUJI || 'https://rpc.ankr.com/avalanche_fuji',
         //     accounts,
         // },
-        'holesky-testnet': {
-            eid: EndpointId.HOLESKY_TESTNET,
-            url: process.env.RPC_URL_HOLESKY || 'https://1rpc.io/holesky',
-            chainId: 17000,
-            accounts,
-        },
+        // 'holesky-testnet': {
+        //     eid: EndpointId.HOLESKY_TESTNET,
+        //     url: process.env.RPC_URL_HOLESKY || 'https://1rpc.io/holesky',
+        //     chainId: 17000,
+        //     accounts,
+        // },
         'amoy-testnet': {
             eid: EndpointId.AMOY_V2_TESTNET,
-            url: process.env.RPC_URL_AMOY || 'https://polygon-amoy-bor-rpc.publicnode.com',
+            url: process.env.RPC_URL_AMOY || 'https://rpc-amoy.polygon.technology',
             accounts,
         },
         hardhat: {
