@@ -123,7 +123,7 @@ This script executes the `OFTAdapter` flow. Here's a typical sequence when sendi
 
 ### Sending Tokens
 
-Use the following command structure:
+Use the following command structure :
 
 ```bash
 node transfer.js <sourceNetwork> <destinationNetwork> <destinationAddress> <tokenAmount>
