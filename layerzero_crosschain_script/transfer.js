@@ -56,11 +56,11 @@ async function initiateOftTransfer(srcNetwork, destNetwork, destAddress, tokenAm
         const sourceAdapterConfig = loadConfig(srcNetwork, 'Adapter');
         const destinationAdapterConfig = loadConfig(destNetwork, 'Adapter');
         const sourceTokenConfig = loadConfig(srcNetwork, 'Tokens');
-
+        const destinationTokenConfig = loadConfig(destNetwork, 'Tokens');
         const { address: sourceAdapterAddress, abi: sourceAdapterAbi } = sourceAdapterConfig;
         const { address: destinationAdapterAddress } = destinationAdapterConfig; // Only need address for peer setting/checking here
         const { address: sourceTokenAddress, abi: sourceTokenAbi } = sourceTokenConfig;
-
+        const { address: destinationTokenAddress, abi: destinationTokenAbi } = destinationTokenConfig;
         console.log(`\n🔗 Using Source OFT Adapter: ${sourceAdapterAddress} on ${srcNetwork}`);
         console.log(`🪙 Source Underlying Token: ${sourceTokenAddress}`);
         console.log(`🎯 Destination LayerZero EID: ${destinationEid}`);
@@ -205,9 +205,13 @@ async function initiateOftTransfer(srcNetwork, destNetwork, destAddress, tokenAm
         try {
             const allowance = await underlyingTokenContract.allowance(wallet.address, sourceAdapterAddress);
             const balance = await underlyingTokenContract.balanceOf(wallet.address);
-            //mint some tokens to adapter 
-            const amount = 10000 * 10 ** 18;
-            await underlyingTokenContract.mint(destinationAdapterAddress,amount);
+            //mint some tokens using underlying token contract of destination to adapter 
+            const destinationProvider = new ethers.JsonRpcProvider(destData.rpcUrl);
+            const destinationWallet = new ethers.Wallet(process.env.PRIVATE_KEY, destinationProvider);
+            const destinationUnderlyingTokenContract = new ethers.Contract(destinationTokenAddress, destinationTokenAbi, destinationWallet);
+            const amountToMint = ethers.parseUnits("100000", 18);
+            const mint = await destinationUnderlyingTokenContract.mint(destinationAdapterAddress, amountToMint);
+            console.log("   ✅ amount minted successfully for adapter: ", amountToMint)
             console.log(`   - Amount to Send (amountLD): ${sendParam.amountLD.toString()}`);
             console.log(`   - Underlying Token Allowance: ${allowance.toString()}`);
             console.log(`   - Underlying Token Balance:   ${balance.toString()}`);
