@@ -63,18 +63,18 @@ const config: HardhatUserConfig = {
         //     url: process.env.RPC_URL_FUJI || 'https://rpc.ankr.com/avalanche_fuji',
         //     accounts,
         // },
-        // 'holesky-testnet': {
-        //     eid: EndpointId.HOLESKY_V2_TESTNET,
-        //     url: process.env.RPC_URL_HOLESKY || 'https://1rpc.io/holesky',
-        //     chainId: 17000,
-        //     accounts,
-        // },
-        'bitlayer-testnet': {
-            eid: EndpointId.BITLAYER_V2_TESTNET,
-            url: 'https://testnet-rpc.bitlayer.org',
-            chainId:200810,
+        'holesky-testnet': {
+            eid: EndpointId.HOLESKY_V2_TESTNET,
+            url: process.env.RPC_URL_HOLESKY || 'https://1rpc.io/holesky',
+            chainId: 17000,
             accounts,
         },
+        // 'bitlayer-testnet': {
+        //     eid: EndpointId.BITLAYER_V2_TESTNET,
+        //     url: 'https://testnet-rpc.bitlayer.org',
+        //     chainId:200810,
+        //     accounts,
+        // },
         // 'amoy-testnet': {
         //     eid: EndpointId.AMOY_V2_TESTNET,
         //     url: process.env.RPC_URL_AMOY || 'https://rpc-amoy.polygon.technology',
