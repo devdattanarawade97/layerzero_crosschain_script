@@ -1,0 +1,3 @@
+deployment command :
+
+ npx hardhat lz:deploy

@@ -64,16 +64,22 @@ const config: HardhatUserConfig = {
         //     accounts,
         // },
         // 'holesky-testnet': {
-        //     eid: EndpointId.HOLESKY_TESTNET,
+        //     eid: EndpointId.HOLESKY_V2_TESTNET,
         //     url: process.env.RPC_URL_HOLESKY || 'https://1rpc.io/holesky',
         //     chainId: 17000,
         //     accounts,
         // },
-        'amoy-testnet': {
-            eid: EndpointId.AMOY_V2_TESTNET,
-            url: process.env.RPC_URL_AMOY || 'https://rpc-amoy.polygon.technology',
+        'bitlayer-testnet': {
+            eid: EndpointId.BITLAYER_V2_TESTNET,
+            url: 'https://testnet-rpc.bitlayer.org',
+            chainId:200810,
             accounts,
         },
+        // 'amoy-testnet': {
+        //     eid: EndpointId.AMOY_V2_TESTNET,
+        //     url: process.env.RPC_URL_AMOY || 'https://rpc-amoy.polygon.technology',
+        //     accounts,
+        // },
         hardhat: {
             // Need this for testing because TestHelperOz5.sol is exceeding the compiled contract size limit
             allowUnlimitedContractSize: true,

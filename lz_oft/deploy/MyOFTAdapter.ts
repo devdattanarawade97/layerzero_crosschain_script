@@ -50,7 +50,7 @@ const deploy: DeployFunction = async (hre) => {
        const { address } = await deploy(contractName, {
         from: deployer,
         args: [
-            addresses.amoy_token_address, // token address
+            addresses.bitlayer_token_address, // chnage token address if needed
             endpointV2Deployment.address, // LayerZero's EndpointV2 address
             deployer, // owner
         ],
