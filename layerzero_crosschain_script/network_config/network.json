@@ -7,8 +7,15 @@
     {
         "network":"amoy",
           "chain_id":80002,
-         "rpc":"https://rpc-amoy.polygon.technology"
+        "rpc":"https://polygon-amoy.g.alchemy.com/v2/NdlLYVLk3FDOJ0Mz24GETvX4zjVejuHb"
      
+          
+    },
+    {
+        "network":"amoy_1",
+          "chain_id":80002,
+         "rpc":"https://rpc-amoy.polygon.technology"
+      
           
     }
 ]

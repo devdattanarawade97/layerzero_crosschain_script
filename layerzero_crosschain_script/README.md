@@ -130,3 +130,10 @@ node transfer.js <sourceNetwork> <destinationNetwork> <destinationAddress> <toke
 
 ```bash
 node transfer.js --listen <listeningNetwork> <expectedSourceNetwork>
+
+
+example -
+
+1) node transfer.js holesky amoy 0x5286bf578ef4bf407c76e0e068ff17b9069e2a22 1 //okx wallet
+2) node transfer.js amoy holesky 0xe3ECDc63B560B17139844c6b5ed56fb41Bd98be2 1 //metamask wallet
+3) node transfer.js --listen amoy holesky // when transfering from holesky->amoy

@@ -9,7 +9,7 @@ const { getChainData } = require('./helper/getChainData'); // Assuming this func
 function loadConfig(network, type) {
     // type should be 'Adapter' or 'Tokens'
     // network should be e.g., 'holesky', 'amoy'
-    const path = `./abis/${type}/${network}_${type === 'Adapter' ? 'Adapter' : 'My_Token'}_ABI.json`; // Construct path dynamically
+    const path = `./abis/${type}/${network}_${type === 'Adapter'||type =='USBD_Adapter' ? 'Adapter' : 'My_Token'}_ABI.json`; // Construct path dynamically
     try {
         if (fs.existsSync(path)) {
             const config = require(path);
@@ -55,8 +55,12 @@ async function initiateOftTransfer(srcNetwork, destNetwork, destAddress, tokenAm
         // Load configs dynamically and safely
         const sourceAdapterConfig = loadConfig(srcNetwork, 'Adapter');
         const destinationAdapterConfig = loadConfig(destNetwork, 'Adapter');
+        // const sourceAdapterConfig = loadConfig(srcNetwork, 'USBD_Adapter');
+        // const destinationAdapterConfig = loadConfig(destNetwork, 'USBD_Adapter');
         const sourceTokenConfig = loadConfig(srcNetwork, 'Tokens');
         const destinationTokenConfig = loadConfig(destNetwork, 'Tokens');
+        // const sourceTokenConfig = loadConfig(srcNetwork, 'USBD');
+        // const destinationTokenConfig = loadConfig(destNetwork, 'USBD');
         const { address: sourceAdapterAddress, abi: sourceAdapterAbi } = sourceAdapterConfig;
         const { address: destinationAdapterAddress } = destinationAdapterConfig; // Only need address for peer setting/checking here
         const { address: sourceTokenAddress, abi: sourceTokenAbi } = sourceTokenConfig;
@@ -74,9 +78,11 @@ async function initiateOftTransfer(srcNetwork, destNetwork, destAddress, tokenAm
 
         // 3. Get Token Decimals & Format Amount
         let decimals;
+        let symbol;
         try {
             decimals = await sourceAdapterContract.decimals();
             console.log(`🪙 Token Decimals (from Adapter): ${decimals}`);
+
         } catch (e) {
             console.error(`❌ Failed to get decimals from Adapter: ${e.message}. Trying underlying token...`);
             try {
@@ -303,7 +309,7 @@ async function receiveTransferListener(listeningNetwork, expectedSourceNetwork) 
             // Load configs dynamically
             // Make listenerAdapterConfig and listenerTokenConfig accessible in handleTransferEvent scope
             global.listenerAdapterConfig = loadConfig(listeningNetwork, 'Adapter');
-            global.listenerTokenConfig = loadConfig(listeningNetwork, 'Tokens');
+            global.listenerTokenConfig = loadConfig(listeningNetwork, 'USBD');
 
             const { address: listenerAdapterAddress } = global.listenerAdapterConfig;
             const { address: listenerTokenAddress, abi: listenerTokenAbi } = global.listenerTokenConfig;
