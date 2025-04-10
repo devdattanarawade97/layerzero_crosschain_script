@@ -130,3 +130,10 @@ node transfer.js <sourceNetwork> <destinationNetwork> <destinationAddress> <toke
 
 ```bash
 node transfer.js --listen <listeningNetwork> <expectedSourceNetwork>
+
+
+sample commands : 
+
+1)node transfer.js holesky amoy 0xe3ECDc63B560B17139844c6b5ed56fb41Bd98be2 10
+2)node transfer.js amoy holesky 0xe3ECDc63B560B17139844c6b5ed56fb41Bd98be2 1
+3) node transfer.js --listen holesky amoy
