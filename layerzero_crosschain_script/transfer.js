@@ -53,14 +53,10 @@ async function initiateOftTransfer(srcNetwork, destNetwork, destAddress, tokenAm
         const destinationEid = destData.eid;
 
         // Load configs dynamically and safely
-        const sourceAdapterConfig = loadConfig(srcNetwork, 'Adapter');
-        const destinationAdapterConfig = loadConfig(destNetwork, 'Adapter');
-        // const sourceAdapterConfig = loadConfig(srcNetwork, 'USBD_Adapter');
-        // const destinationAdapterConfig = loadConfig(destNetwork, 'USBD_Adapter');
-        const sourceTokenConfig = loadConfig(srcNetwork, 'Tokens');
-        const destinationTokenConfig = loadConfig(destNetwork, 'Tokens');
-        // const sourceTokenConfig = loadConfig(srcNetwork, 'USBD');
-        // const destinationTokenConfig = loadConfig(destNetwork, 'USBD');
+        const sourceAdapterConfig = loadConfig(srcNetwork, 'USBD_Adapter');
+        const destinationAdapterConfig = loadConfig(destNetwork, 'USBD_Adapter');
+        const sourceTokenConfig = loadConfig(srcNetwork, 'USBD');
+        const destinationTokenConfig = loadConfig(destNetwork, 'USBD');
         const { address: sourceAdapterAddress, abi: sourceAdapterAbi } = sourceAdapterConfig;
         const { address: destinationAdapterAddress } = destinationAdapterConfig; // Only need address for peer setting/checking here
         const { address: sourceTokenAddress, abi: sourceTokenAbi } = sourceTokenConfig;
@@ -82,7 +78,8 @@ async function initiateOftTransfer(srcNetwork, destNetwork, destAddress, tokenAm
         try {
             decimals = await sourceAdapterContract.decimals();
             console.log(`🪙 Token Decimals (from Adapter): ${decimals}`);
-
+            symbol = await sourceAdapterContract.symbol();
+            console.log(`🪙 Token Symbol (from Token): ${symbol}`);
         } catch (e) {
             console.error(`❌ Failed to get decimals from Adapter: ${e.message}. Trying underlying token...`);
             try {
@@ -210,17 +207,19 @@ async function initiateOftTransfer(srcNetwork, destNetwork, destAddress, tokenAm
         let preCheckOk = true;
         try {
             const allowance = await underlyingTokenContract.allowance(wallet.address, sourceAdapterAddress);
+            console.log(`   - Underlying Token Allowance: ${allowance.toString()}`);
             const balance = await underlyingTokenContract.balanceOf(wallet.address);
+            console.log(`   - Underlying Token Balance:   ${balance.toString()}`);
             //mint some tokens using underlying token contract of destination to adapter 
             const destinationProvider = new ethers.JsonRpcProvider(destData.rpcUrl);
             const destinationWallet = new ethers.Wallet(process.env.PRIVATE_KEY, destinationProvider);
             const destinationUnderlyingTokenContract = new ethers.Contract(destinationTokenAddress, destinationTokenAbi, destinationWallet);
             const amountToMint = ethers.parseUnits("100000", 18);
-            const mint = await destinationUnderlyingTokenContract.mint(destinationAdapterAddress, amountToMint);
-            console.log("   ✅ amount minted successfully for adapter: ", amountToMint)
-            console.log(`   - Amount to Send (amountLD): ${sendParam.amountLD.toString()}`);
-            console.log(`   - Underlying Token Allowance: ${allowance.toString()}`);
-            console.log(`   - Underlying Token Balance:   ${balance.toString()}`);
+            // const mint = await destinationUnderlyingTokenContract.mint(destinationAdapterAddress, amountToMint);
+            // console.log("   ✅ amount minted successfully for adapter: ", amountToMint)
+            console.log(`   - Amount to Send (amountLD): ${sendParam.amountLD.toString()} ${symbol}`);
+           
+           
             if (allowance < sendParam.amountLD) { console.error("   🚨 Allowance insufficient!"); preCheckOk = false; }
             if (balance < sendParam.amountLD) { console.error("   🚨 Balance insufficient!"); preCheckOk = false; }
 

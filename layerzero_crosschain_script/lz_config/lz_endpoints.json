@@ -12,5 +12,19 @@
           "eid":40267,
           "rpcUrl":"https://rpc-amoy.polygon.technology",
           "wssUrl":"wss://polygon-amoy-bor-rpc.publicnode.com"
+    },
+    {
+        "network":"core",
+         "endpoint_address":"0x6EDCE65403992e310A62460808c4b910D972f10f",
+          "eid":40153,
+          "rpcUrl":"https://rpc.test2.btcs.network",
+          "wssUrl":"wss://core-testnet.drpc.org"
+    },
+    {
+        "network":"hemi",
+         "endpoint_address":"0x6EDCE65403992e310A62460808c4b910D972f10f",
+          "eid":40338,
+          "rpcUrl":"https://testnet.rpc.hemi.network/rpc",
+          "wssUrl":"https://testnet.rpc.hemi.network/rpc"
     }
 ]
